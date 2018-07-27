@@ -1,23 +1,19 @@
-# UDB Reactor
+# HDF5 Reactor
 
-This Cyclus Reactor module is created towards the project
-to benchmark Cyclus with ORION UNF-ST&DARDS benchmark.
+This Cyclus Reactor module is created in order to model
+Molten Salt Reactors (MSRs) in Cyclus.
 
-The reactor module will read the UNF-ST&DARDS dataset
-and will output UNF defined by the database. The parameters
-for the output commodity are:
+The reactor module will read the HDF5 file and
+will do the following:
+1. Request:
+  * Initial fuel
+  * Fertile Material
+2. Offer:
+  * surplus fissile stream
+  * reprocessed waste stream
+  * end-of-life discharge fuel
 
-1. Output date (finest time step is one month.)
-2. Composition
-3. Quantity
-
-Each reactor agent will have a `ReactorID` parameter
-that will connect the individual prototype with an
-actual reactor in the database. This way, we can model
-the historical UNF discharge by tracking
-individual reactors in the U.S as an agent.
-
-**Placeholder**
-I'm guessing this will be different from ORION, and allow
-interesting analyses like the GIS mapping and burn-up
-characterization by reactor.
+The user needs to specify the power capacity of the reactor,
+and the commodity names for each stream coming in and out of the
+reactor. The quantity and composition are all imported from the
+HDF5 file.
