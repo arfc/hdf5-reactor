@@ -2,7 +2,7 @@
 
 <simulation>
   <control>
-    <duration>10</duration>
+    <duration>13</duration>
     <startmonth>1</startmonth>
     <startyear>2000</startyear>
   </control>
@@ -60,6 +60,7 @@
         <in_commods>
           <val>waste</val>
           <val>fissile_out</val>
+          <val>fuel_out</val>
         </in_commods>
         <capacity>1000</capacity>
       </Sink>
@@ -67,6 +68,7 @@
   </facility>
 
   <facility>
+    <lifetime>10</lifetime>
     <name>rebus_3700</name>
     <config>
       <saltproc_reactor>
