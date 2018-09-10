@@ -1,0 +1,120 @@
+<!-- 1 Source Source, 1 Sink Sink -->
+
+<simulation>
+  <control>
+    <duration>10</duration>
+    <startmonth>1</startmonth>
+    <startyear>2000</startyear>
+  </control>
+
+  <archetypes>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Source</name>
+    </spec>
+    <spec>
+      <lib>cycamore</lib>
+      <name>Sink</name>
+    </spec>
+    <spec>
+      <lib>agents</lib>
+      <name>NullRegion</name>
+    </spec>
+    <spec>
+      <lib>agents</lib>
+      <name>NullInst</name>
+    </spec>
+    <spec>
+      <lib>saltproc_reactor.saltproc_reactor</lib>
+      <name>saltproc_reactor</name>
+    </spec>
+  </archetypes>
+
+
+  <facility>
+    <name>init_fuel_source</name>
+    <config>
+      <Source>
+        <outcommod>init_fuel</outcommod>
+        <outrecipe>commod_recipe</outrecipe>
+        <throughput>1e10</throughput>
+      </Source>
+    </config>
+  </facility>
+
+  <facility>
+    <name>fill_source</name>
+    <config>
+      <Source>
+        <outcommod>fill</outcommod>
+        <outrecipe>commod_recipe</outrecipe>
+        <throughput>1e10</throughput>
+      </Source>
+    </config>
+  </facility>
+
+  <facility>
+    <name>SomeSink</name>
+    <config>
+      <Sink>
+        <in_commods>
+          <val>waste</val>
+          <val>fissile_out</val>
+        </in_commods>
+        <capacity>1000</capacity>
+      </Sink>
+    </config>
+  </facility>
+
+  <facility>
+    <name>rebus_3700</name>
+    <config>
+      <saltproc_reactor>
+        <init_fuel_commod>init_fuel</init_fuel_commod>
+        <final_fuel_commod>fuel_out</final_fuel_commod>
+        <fill_commod>fill</fill_commod>
+        <fissile_out_commod>fissile_out</fissile_out_commod>
+        <waste_commod>waste</waste_commod>
+        <db_path>./db/rebus.hdf5</db_path>
+      </saltproc_reactor>
+    </config>
+  </facility>
+
+  <region>
+    <name>SingleRegion</name>
+    <config><NullRegion/></config>
+    <institution>
+      <name>SingleInstitution</name>
+      <initialfacilitylist>
+        <entry>
+          <prototype>init_fuel_source</prototype>
+          <number>1</number>
+        </entry>
+        <entry>
+          <prototype>fill_source</prototype>
+          <number>1</number>
+        </entry>
+        <entry>
+          <prototype>SomeSink</prototype>
+          <number>1</number>
+        </entry>
+
+        <entry>
+          <prototype>rebus_3700</prototype>
+          <number>1</number>
+        </entry>
+      </initialfacilitylist>
+      <config><NullInst/></config>
+    </institution>
+  </region>
+
+  <recipe>
+    <name>commod_recipe</name>
+    <basis>mass</basis>
+    <nuclide>
+      <id>010010000</id>
+      <comp>1</comp>
+    </nuclide>
+  </recipe>
+
+</simulation>
