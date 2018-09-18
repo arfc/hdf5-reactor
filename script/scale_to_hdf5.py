@@ -5,55 +5,33 @@ class scale_reader:
     def __init__(self, file_list, vol):
         self.file_list = file_list
         self.vol = vol
-        # first one
+        self.check_input_files()
+
         self.timeseries_dict = {}
-        print('READING FILE: ', file_list[0])
-        with open(file_list[0], 'r') as f:
-            filename = file_list[0].split('/')[-1]
-            self.timeseries_dict[filename] = {}
+
+        for file in file_list:
+            print('READING FILE ', file)
+            self.get_timeseries_dict(file)
+
+        self.array_dict = {}
+        for key, val in self.timeseries_dict.items():
+            self.array_dict[key] = self.timseries_dict_to_array(val)
+
+    def get_timeseries_dict(self, file):
+        filename = file.split('/')[-1]
+        self.timeseries_dict[filename] = {}
+        with open(file, 'r') as f:
             lines = f.readlines()
-            # scale run parameters
-            time_setting = lines[1]
-            print('Time Setting: ', time_setting)
             unit = lines[2]
-            print('Units: ', unit)
+            if self.get_suffix(unit) != self.suffix:
+                raise ValueError('Units are different here')
 
-            self.timesteps = int(lines[4].split()[0])
-            self.num_isotopes = int(lines[4].split()[1])
-
-            self.suffix = self.get_suffix(unit)
-
-            # first 6 lines are unnecessary
             for line in lines[6:]:
                 line = line.split()
                 iso_name = line[0].capitalize()
                 if 'total' in iso_name:
                     continue
                 self.timeseries_dict[filename][iso_name] = np.array([float(x) for x in line[1:]])
-        self.iso_names = list(self.timeseries_dict[filename].keys())
-
-        # the ones after that
-        for file in file_list[1:]:
-            filename = file.split('/')[-1]
-            print('READING FILE ', file)
-            self.timeseries_dict[filename] = {}
-            with open(file, 'r') as f:
-                lines = f.readlines()
-                unit = lines[2]
-                if self.get_suffix(unit) != self.suffix:
-                    raise ValueError('Units are different here')
-
-                for line in lines[6:]:
-                    line = line.split()
-                    iso_name = line[0].capitalize()
-                    if 'total' in iso_name:
-                        continue
-                    self.timeseries_dict[filename][iso_name] = np.array([float(x) for x in line[1:]])
-
-        self.array_dict = {}
-        for key, val in self.timeseries_dict.items():
-            self.array_dict[key] = self.timseries_dict_to_array(val)
-
 
     def timseries_dict_to_array(self, timeseries_dict):
         shape = (self.timesteps, self.num_isotopes)
@@ -77,6 +55,53 @@ class scale_reader:
             print(unit)
             raise ValueError('What is this unit')
         return suffix
+
+    def check_input_files(self):
+        self.iso_names = []
+        timestep_lists = []
+        unit_lists = []
+        time_lists = []
+        for file in self.file_list:
+            with open(file, 'r') as f:
+                lines = f.readlines()
+                for line in lines[6:]:
+                    iso = line.split()[0]
+                    iso = iso.capitalize()
+                    self.iso_names.append(iso)
+
+                # collect timesteps
+                timestep_val = int(lines[4].split()[0])
+                timestep_lists.append(timestep_val)
+
+                # collect units
+                unit_val = lines[2].strip()
+                unit_lists.append(unit_val)
+
+                # collect time units
+                time_val = lines[1].strip()
+                time_lists.append(time_val)
+
+        # check if they all coincide
+        timestep_lists = list(set(timestep_lists))
+        unit_lists = list(set(unit_lists))
+        time_lists = list(set(time_lists))
+
+        if len(timestep_lists) != 1:
+            raise ValueError('Timesteps do not match')
+        if len(unit_lists) != 1:
+            raise ValueError('Units do not match')
+        if len(time_lists) != 1:
+            raise ValueError('time units do not match')
+
+        self.timesteps = timestep_lists[0]
+        self.suffix = self.get_suffix(unit_lists[0])
+
+        self.iso_names = sorted(list(set(self.iso_names)))
+        self.num_isotopes = len(self.iso_names)
+
+
+
+#############################################################################
 
 # volume in cm^3
 # returns mass in kg
